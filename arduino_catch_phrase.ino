@@ -2,6 +2,7 @@
 #include <LiquidCrystal_I2C.h>
 
 
+
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 int teamOneScore, teamTwoScore, wordIndex, timerSeconds = 0;
 String selectedCategory = "";
@@ -15,18 +16,23 @@ bool timerStart = true;
 //variable that starts the game loop when set to true
 bool playing = false;
 
+//list of different categories
+char *categories[] = {"General", "The Office", "Michigan", "Politics"};
+int categoryIndex = 0;
+
 //initialize arraylist categories of words
 //probably need to use a different arraylist type
-char *testCat[] = {"Hello World", "Ass to Mouth", "Dog", "Wizz Palace", "Canada", "Hooters", "Nancy Pelosi"};
+char *testCat[] = {"Hello World", "Dog", "Wizz Palace", "Canada", "Hooters", "Nancy Pelosi"};
 char *cat2[] = {"Michigan", "California", "Texas", "Twins"};
 char *cat3[] = {"Bonfires", "Waterslide", "Tacos", "Steak", "Meijer", "Nancy Pelosi"};
 
-String currentWord, previousWord;
+char currentWord, previousWord, currentCategory, previousCategory;
 
 char *currentCat[] = {};
 
 int nextButton = 2;
 int enterButton = 3;
+
 
 
 
@@ -37,6 +43,9 @@ void setup() {
     pinMode(enterButton, INPUT);
     digitalWrite(enterButton, HIGH);
 
+//used to randomly select words from categorical lists of words
+    randomSeed(analogRead(0));
+
     lcd.begin();
     lcd.backlight();
     lcd.clear();
@@ -44,10 +53,11 @@ void setup() {
     lcd.print("Austin's CatchPhrase");
     lcd.setCursor(4,2);
     lcd.print("Press Enter");
+    //stopped working for some reason
+    //waitForEnter();
 
-    randomSeed(analogRead(0));
+    selectCategory();
 
-    waitForEnter();
     selectWord();
 }
 
@@ -66,16 +76,39 @@ void timer() {
 //this draws all the text on the display
 void drawScreen() {
     //need to make it only clear display if any values changed
-    if (previousWord != currentWord) {
-        lcd.clear();
-        showCategory();
-        showScores();
+    //if (previousWord != currentWord && previousCategory != currentCategory) {
+    lcd.clear();
+    showCategory();
+    showScores();
+    //only show current word if users are playing the game
+    if (playing) {
         showCurrentWord();
-
-
-        ResetPreviousValues();
     }
 
+
+    ResetPreviousValues();
+    //}
+
+}
+
+void selectCategory() {
+    bool selected = false;
+    while (!selected) {
+        if (digitalRead(nextButton) == LOW) {
+            previousCategory = char (categories[categoryIndex]);
+            categoryIndex++;
+            //wrap category index back to 0 if it gets larger than size of list
+            if (categoryIndex > sizeof(categories)) {
+                categoryIndex = 0;
+            }
+            currentCategory = categories[categoryIndex];
+        }
+        drawScreen();
+        delay(100);
+        if (digitalRead(enterButton) == LOW) {
+            selected == true;
+        }
+    }
 }
 
 //this resets the previous variable values to match the current values
@@ -83,6 +116,7 @@ void drawScreen() {
 //will probably need to add scores, category, etc
 void ResetPreviousValues() {
     previousWord = currentWord;
+    previousCategory = currentCategory;
 }
 
 void waitForEnter() {
@@ -95,7 +129,7 @@ void waitForEnter() {
 //from the arraylist of the chosen category.
 void nextWord() {
     wordIndex = random(sizeof(testCat));
-    currentWord = String (testCat[wordIndex]);
+    currentWord = char (testCat[wordIndex]);
 
     // delete currentWord (wordIndex)
     for (int i = wordIndex; i < (sizeof(testCat)); ++i)
@@ -123,7 +157,7 @@ void showCurrentWord() {
 //method that shows the current select category (which is also an array list)
 void showCategory() {
     lcd.setCursor(0,1);
-    lcd.print("Category: Countries");
+    lcd.print("Category: " + String (categories[categoryIndex]));
 }
 
 
@@ -134,8 +168,9 @@ void selectWord() {
     bool selected = false;
     while (!selected) {
         if (digitalRead(nextButton) == LOW) {
-            previousWord = String (testCat[wordIndex]);
+            previousWord = char (testCat[wordIndex]);
             wordIndex++;
+            currentWord = testCat[wordIndex];
         }
         drawScreen();
         delay(100);
