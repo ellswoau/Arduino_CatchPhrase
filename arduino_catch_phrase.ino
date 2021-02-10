@@ -22,7 +22,7 @@ int categoryIndex = 0;
 
 //initialize arraylist categories of words
 //probably need to use a different arraylist type
-char *testCat[] = {"Hello World", "Dog", "Wizz Palace", "Canada", "Hooters", "Nancy Pelosi"};
+char *testCat[] = {"Spilled Chilli", "George Foreman", "Benihana", "Pretzel Day", "Parkour", "Merger", "Niagara Falls", "All-Inclusive", "Baby back ribs", "Beet Farmer", "Cornell University", "Candles"};
 char *cat2[] = {"Michigan", "California", "Texas", "Twins"};
 char *cat3[] = {"Bonfires", "Waterslide", "Tacos", "Steak", "Meijer", "Nancy Pelosi"};
 
