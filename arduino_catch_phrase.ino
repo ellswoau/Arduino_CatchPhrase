@@ -54,10 +54,21 @@ void setup() {
     lcd.setCursor(4,2);
     lcd.print("Press Enter");
     //stopped working for some reason
-    //waitForEnter();
+    waitForEnter();
+    //prevents HIGH status of enter button from prematmurely breaking selectCategory loop
+    delay(300);
 
+//setting previousCategory to "start" ensures it does not equal the currentWord
+    //and prevent drawScreen from executing
+    previousCategory = "start";
     selectCategory();
+    delay(300);
 
+//eventually playing and select word will need to be move to main loop
+    playing = true;
+    //setting previousWord to "start" ensures it does not equal the currentWord
+    //and prevent drawScreen from executing
+    previousWord = "start";
     selectWord();
 }
 
@@ -76,18 +87,18 @@ void timer() {
 //this draws all the text on the display
 void drawScreen() {
     //need to make it only clear display if any values changed
-    //if (previousWord != currentWord && previousCategory != currentCategory) {
-    lcd.clear();
-    showCategory();
-    showScores();
-    //only show current word if users are playing the game
-    if (playing) {
-        showCurrentWord();
+    if (previousWord != currentWord || previousCategory != currentCategory) {
+        lcd.clear();
+        showCategory();
+        showScores();
+        //only show current word if users are playing the game
+        if (playing) {
+            showCurrentWord();
+        }
+
+
+        ResetPreviousValues();
     }
-
-
-    ResetPreviousValues();
-    //}
 
 }
 
@@ -107,6 +118,7 @@ void selectCategory() {
         delay(100);
         if (digitalRead(enterButton) == LOW) {
             selected == true;
+            break;
         }
     }
 }
